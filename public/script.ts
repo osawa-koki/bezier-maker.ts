@@ -272,8 +272,8 @@ function truncAndImport (keep: boolean): void {
  */
 function recursiveInitiator (points: number[][], isFirst: boolean): void {
   const intervalValue = interval.value
-  const speedValue = parseInt(speed.value) * 1000
-  const span = 50 + (5 - parseInt(intervalValue)) * 5
+  const speedValue = parseFloat(speed.value) * 1000
+  const span = 50 + (5 - parseFloat(intervalValue)) * 5
   const realSpeed = speedValue / span
   if (isFirst) {
     const polyline = document.createElementNS(NAMESPACE_OF_SVG, 'polyline')
