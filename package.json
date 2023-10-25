@@ -13,8 +13,10 @@
   },
   "scripts": {
     "dev": "http-server ./public/ -c1 -p 8000",
+    "build": "yarn build:ts",
     "build:ts": "tsc",
-    "lint": "eslint . --ext .ts"
+    "lint": "eslint . --ext .ts",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {},
   "devDependencies": {
