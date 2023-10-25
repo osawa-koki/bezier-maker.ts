@@ -12,13 +12,15 @@
     "yarn": ">= 1.22.0"
   },
   "scripts": {
-    "dev": "http-server ./public/ -c1 -p 8000",
-    "build": "yarn build:ts",
+    "dev": "yarn build && http-server ./public/ -c1 -p 8000",
+    "build": "yarn build:ts && yarn build:sass",
     "build:ts": "tsc",
+    "build:sass": "sass ./public/style.scss ./public/style.css --style=compressed",
     "lint": "eslint . --ext .ts",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "sass": "^1.69.4",
     "typescript": "^5.2.2"
   },
   "devDependencies": {
