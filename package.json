@@ -6,15 +6,18 @@
   "author": "osawa-koki <koki@osawa.dev>",
   "license": "Apache-2.0",
   "private": false,
+  "type": "module",
   "engines": {
     "node": ">= 20.0.0",
     "yarn": ">= 1.22.0"
   },
   "scripts": {
-    "dev": "http-server ./public/ -c1 -p 8000"
+    "dev": "http-server ./public/ -c1 -p 8000",
+    "build:ts": "tsc"
   },
   "dependencies": {},
   "devDependencies": {
-    "http-server": "^14.1.1"
+    "http-server": "^14.1.1",
+    "typescript": "^5.2.2"
   }
 }
