@@ -1,80 +1,9 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
 import { mkElms, mkSVGElm, mkSVGElms, removeChildren, round100 } from './functions.js'
-import { NAMESPACE_OF_SVG, SPACE } from './const.js'
-
-// define const values.
-const [SVG_SIZE_MIN, SVG_SIZE_MAX] = [0, 300]
-
-/** ベジェ曲線の公式を表示する`Div`要素。 */
-const bezierFormulaBox = document.getElementById('bezierFormulaBox')! as HTMLDivElement
-/** デモ用のベジェ曲線を表示する`SVG`要素。 */
-const currentdemoSVG = document.getElementById('currentdemoSVG')! as unknown as SVGSVGElement
-/** デモ用のベジェ曲線を表示する`path`要素。 */
-const currentdemoPath = document.getElementById('currentdemoPath')! as unknown as SVGPathElement
-
-/** 実行ボタン。 */
-const mainLeftButton = document.getElementById('mainLeftButton')! as HTMLButtonElement
-/** リセットボタン。 */
-const mainRightButton = document.getElementById('mainRightButton')! as HTMLButtonElement
-/** グリッドの分割数を指定する`input`要素。 */
-const gridWidth = document.getElementById('gridWidth')! as HTMLInputElement
-/** グリッドの濃さを指定する`input`要素。 */
-const gridDense = document.getElementById('gridDense')! as HTMLInputElement
-/** アニメーションの速さを指定する`input`要素。 */
-const speed = document.getElementById('speed')! as HTMLInputElement
-/** アニメーションの間隔を指定する`input`要素。 */
-const interval = document.getElementById('interval')! as HTMLInputElement
-
-/** グリッドの幅を表示する`span`要素。 */
-const gridWidthShow = document.getElementById('gridWidthShow')! as HTMLSpanElement
-/** アニメーションの速さを表示する`span`要素。 */
-const speedShow = document.getElementById('speedShow')! as HTMLSpanElement
-/** アニメーションの間隔を表示する`span`要素。 */
-const intervalShow = document.getElementById('intervalShow')! as HTMLSpanElement
-/** グリッドの濃さを表示する`span`要素。 */
-const gridDenseShow = document.getElementById('gridDenseShow')! as HTMLSpanElement
-
-/** グリッドを表示する`g`要素。 */
-const groupOfLines = document.getElementById('groupOfLines')! as unknown as SVGGElement
-/** 説明用の線を表示する`g`要素。 */
-const groupOfExplanator = document.getElementById('groupOfExplanator')! as unknown as SVGGElement
-/** ハンドラーを表示する`g`要素。 */
-const groupOfhandler = document.getElementById('groupOfhandler')! as unknown as SVGGElement
-
-/** 実行中の円を表示する`circle`要素。 */
-const runningCircle = document.getElementById('runningCircle')! as unknown as SVGCircleElement
-/** 赤い進捗バーを表示する`path`要素。 */
-const progressorRed = document.getElementById('progressorRed')! as unknown as SVGPathElement
-/** 赤い進捗バーのパーセントを表示する`text`要素。 */
-const progressorRedCounter = document.getElementById('progressorRedCounter')! as unknown as SVGTextElement
-/** 青い進捗バーを表示する`path`要素。 */
-const progressorBlue = document.getElementById('progressorBlue')! as unknown as SVGPathElement
-/** 赤い進捗バーの縦線を表示する`line`要素。 */
-const progressorRedLine = document.getElementById('progressorRedLine')! as unknown as SVGLineElement
-/** 青い進捗バーの縦線を表示する`line`要素。 */
-const progressorBlueLine = document.getElementById('progressorBlueLine')! as unknown as SVGLineElement
-
-/** メインの`div`要素。 */
-const mainWindow = document.getElementById('mainWindow')! as HTMLDivElement
-/** テンプレートを表示する`div`要素。 */
-const templateWindow = document.getElementById('templateWindow')! as HTMLDivElement
-/** ログを表示する`div`要素。 */
-const logWindow = document.getElementById('logWindow')! as HTMLDivElement
-/** デモ用の`div`要素。 */
-const mainRightBottomFrame = document.getElementById('mainRightBottomFrame')! as HTMLDivElement
-
-/** メインデモのベジェ曲線。 */
-const bezier = document.getElementById('bezier')! as unknown as SVGPathElement
-
-/** ログを表示する`svg`要素。 */
-const handlers: {
-  circles: SVGCircleElement[]
-  polylines: SVGPolylineElement[]
-} = {
-  circles: [],
-  polylines: []
-}
+import { NAMESPACE_OF_SVG, SPACE, SVG_SIZE_MAX, SVG_SIZE_MIN } from './const.js'
+import { XColor, XColorParent, XColorShow, XLine, XLineShow, XSpeed, XSpeedShow, XTimes, XTimesShow, bezier, bezierFormulaBox, currentdemoPath, currentdemoSVG, gridDense, gridDenseShow, gridWidth, gridWidthShow, groupOfExplanator, groupOfLines, groupOfhandler, interval, intervalShow, logWindow, mainLeftButton, mainRightBottomFrame, mainRightButton, mainWindow, progressorBlue, progressorBlueLine, progressorRed, progressorRedCounter, progressorRedLine, runningCircle, speed, speedShow, templateWindow } from './elements.js'
+import { handlers, stopwatchObject } from './setting.js'
 
 // init
 putLines()
@@ -248,13 +177,16 @@ function manipuratorSync (): void {
   }
 }
 
+/**
+ * 実行ボタンがクリックされた際に実行される関数。
+ */
 function exec (this: any): void {
   this.removeEventListener('click', exec)
   this.addEventListener('click', pause)
   this.textContent = '一時停止'
   Array.from(groupOfhandler.getElementsByTagName('circle')).forEach(e => { e.removeEventListener('mousedown', mousedown) })
   bezierSync()
-  recursiveInitiator(obtainManipulatorPositions())
+  recursiveInitiator(obtainManipulatorPositions(), true)
 }
 
 /**
@@ -296,22 +228,54 @@ function restart (this: any): void {
   recursiveInitiator(obtainManipulatorPositions(), false)
 }
 
-const stopwatchObject: {
-  intervalId: number | undefined
-  counter: number
-  reset: () => void
-} = {
-  intervalId: undefined,
-  counter: 0,
-  reset: function () { this.counter = 0 }
+/**
+ * 実行中のアニメーションを停止させる。
+ */
+function stopInterval (): void {
+  mainLeftButton.removeEventListener('click', pause)
+  mainLeftButton.addEventListener('click', exec)
+  mainLeftButton.textContent = '実行'
+  Array.from(groupOfhandler.getElementsByTagName('circle')).forEach(circle => { circle.addEventListener('mousedown', mousedown, false) })
+  truncAndImport(true)
 }
 
-function recursiveInitiator (points: number[][], tf = true): void {
+/**
+ * 実行中のアニメーションを停止させ、進捗バーを初期値に戻す。
+ * @param keep - `true`の場合は進捗バーをそのまま保持し、`false`の場合は進捗バーを初期値に戻す。
+ */
+function truncAndImport (keep: boolean): void {
+  clearInterval(stopwatchObject.intervalId)
+  mainLeftButton.removeEventListener('click', pause)
+  mainLeftButton.removeEventListener('click', restart)
+  mainLeftButton.addEventListener('click', exec)
+  mainLeftButton.textContent = '実行'
+  runningCircle.classList.remove('ok')
+  runningCircle.setAttribute('cx', (SVG_SIZE_MIN - 10).toString())
+  runningCircle.setAttribute('cy', (SVG_SIZE_MAX + 10).toString())
+  const xx = (keep) ? SVG_SIZE_MAX : SVG_SIZE_MIN
+  const yy = (keep) ? SVG_SIZE_MIN : SVG_SIZE_MAX
+  progressorRed.setAttribute('d', `m -5 ${yy}, -10 -10 h-10 v20 h10 z`)
+  progressorRedCounter.textContent = `${((SVG_SIZE_MAX - yy) / 3).toFixed(0)}%`
+  progressorRedLine.setAttribute('x2', xx.toString())
+  progressorRedLine.setAttribute('y1', yy.toString())
+  progressorRedLine.setAttribute('y2', yy.toString())
+  progressorBlue.setAttribute('d', `m ${xx} 305, -10 10 v10 h20 v-10 z`)
+  progressorBlueLine.setAttribute('x1', xx.toString())
+  progressorBlueLine.setAttribute('x2', xx.toString())
+  progressorBlueLine.setAttribute('y2', yy.toString())
+}
+
+/**
+ * ベジェ曲線のアニメーションを再帰的に実行する関数を呼び出す関数。
+ * @param points - ベジェ曲線の制御点の座標。
+ * @param isFirst - `true`の場合は、初回の呼び出しであることを示す。
+ */
+function recursiveInitiator (points: number[][], isFirst: boolean): void {
   const intervalValue = interval.value
   const speedValue = parseInt(speed.value) * 1000
   const span = 50 + (5 - parseInt(intervalValue)) * 5
   const realSpeed = speedValue / span
-  if (tf) {
+  if (isFirst) {
     const polyline = document.createElementNS(NAMESPACE_OF_SVG, 'polyline')
     polyline.setAttribute('points', points.map(j => j.join(',')).join(SPACE))
     groupOfExplanator.appendChild(polyline)
@@ -332,42 +296,10 @@ function recursiveInitiator (points: number[][], tf = true): void {
 }
 
 /**
- * 実行中のアニメーションを停止させる。
+ * ベジェ曲線のアニメーションを再帰的に実行する関数。
+ * @param points - ベジェ曲線の制御点の座標。
+ * @param proportion - ベジェ曲線の進捗。
  */
-function stopInterval (): void {
-  mainLeftButton.removeEventListener('click', pause)
-  mainLeftButton.addEventListener('click', exec)
-  mainLeftButton.textContent = '実行'
-  Array.from(groupOfhandler.getElementsByTagName('circle')).forEach(circle => { circle.addEventListener('mousedown', mousedown, false) })
-  truncAndImport()
-}
-
-/**
- * 実行中のアニメーションを停止させ、進捗バーを初期値に戻す。
- * @param tf - `true`の場合、進捗バーを初期値に戻す。
- */
-function truncAndImport (tf = true): void {
-  clearInterval(stopwatchObject.intervalId)
-  mainLeftButton.removeEventListener('click', pause)
-  mainLeftButton.removeEventListener('click', restart)
-  mainLeftButton.addEventListener('click', exec)
-  mainLeftButton.textContent = '実行'
-  runningCircle.classList.remove('ok')
-  runningCircle.setAttribute('cx', (SVG_SIZE_MIN - 10).toString())
-  runningCircle.setAttribute('cy', (SVG_SIZE_MAX + 10).toString())
-  const xx = (tf) ? SVG_SIZE_MAX : SVG_SIZE_MIN
-  const yy = (tf) ? SVG_SIZE_MIN : SVG_SIZE_MAX
-  progressorRed.setAttribute('d', `m -5 ${yy}, -10 -10 h-10 v20 h10 z`)
-  progressorRedCounter.textContent = `${((SVG_SIZE_MAX - yy) / 3).toFixed(0)}%`
-  progressorRedLine.setAttribute('x2', xx.toString())
-  progressorRedLine.setAttribute('y1', yy.toString())
-  progressorRedLine.setAttribute('y2', yy.toString())
-  progressorBlue.setAttribute('d', `m ${xx} 305, -10 10 v10 h20 v-10 z`)
-  progressorBlueLine.setAttribute('x1', xx.toString())
-  progressorBlueLine.setAttribute('x2', xx.toString())
-  progressorBlueLine.setAttribute('y2', yy.toString())
-}
-
 function recursiveMain (points: number[][], proportion: number): void {
   if (points.length === 1) return
   const targetLine = groupOfExplanator.getElementsByTagName('polyline')[5 - points.length]
@@ -396,8 +328,7 @@ function recursiveMain (points: number[][], proportion: number): void {
   recursiveMain(dComponents, proportion)
 }
 
-mainRightButton.addEventListener('click', doAnimation)
-
+// インポート矢印がクリックされたら、ベジェ曲線を比較するようにインポートする。
 Array.from(document.getElementsByClassName('arrowBox')).forEach(arrowBox => {
   arrowBox.addEventListener('click', function syncIcon (this: any) {
     const dValue = bezier.getAttribute('d')!.match(/-?\d+\.?\d*/g)
@@ -406,50 +337,54 @@ Array.from(document.getElementsByClassName('arrowBox')).forEach(arrowBox => {
   })
 })
 
-function animateIt (this: any, target: HTMLElement): void {
-  const targetBox: HTMLElement = (this !== window && this != null) ? this : target
-  const bezierLine = calcBezierFormula(targetBox.getElementsByTagName('path')[0].getAttribute('d')!)
-  const toAnimates: HTMLElement[] = Array.from(targetBox.nextElementSibling!.getElementsByClassName('toAnimate')) as unknown as HTMLElement[]
+/**
+ * 比較用のベジェ曲線のアニメーションを実行する関数。
+ * @param target - アニメーション対象の要素。
+ */
+function animateIt (target: HTMLElement): void {
+  const bezierLine = calcBezierFormula(target.getElementsByTagName('path')[0].getAttribute('d')!)
+  const toAnimates: HTMLElement[] = Array.from(target.nextElementSibling!.getElementsByClassName('toAnimate')) as unknown as HTMLElement[]
   toAnimates.forEach((mover) => {
-    mover.style.animationTimingFunction = (!targetBox.classList.contains('linearAnimation')) ? bezierLine : 'linear'
+    mover.style.animationTimingFunction = (!target.classList.contains('linearAnimation')) ? bezierLine : 'linear'
     mover.addEventListener('animationend', finishedAnimation)
     mover.classList.add('onAnimation')
   })
 }
+
+/**
+ * 対象の要素のベジェ曲線を計算する関数。
+ * @param target - 計算対象の要素。
+ * @returns ベジェ曲線の計算式。
+ */
 function calcBezierFormula (target: string): string {
   const _dElement = target.match(/-?\d+\.?\d*/g)!
   const dElement = _dElement.map((i) => parseInt(i))
   return `cubic-bezier(${round100(dElement[2] / SVG_SIZE_MAX)}, ${round100((1 - (dElement[3] / SVG_SIZE_MAX)))}, ${round100(dElement[4] / SVG_SIZE_MAX)}, ${round100(1 - (dElement[5] / SVG_SIZE_MAX))})`
 }
 
+/**
+ * アニメーションが終了した際に実行される関数。
+ * @param this - アニメーションが終了した要素。
+ */
 function finishedAnimation (this: any): void {
   this.classList.remove('onAnimation')
 }
 
-function doAnimation (): void {
+// 比較アニメーション開始ボタンがクリックされたら、比較アニメーションを実行する。
+mainRightButton.addEventListener('click', function () {
   const icons: HTMLElement[] = Array.from(document.getElementsByClassName('icon')) as unknown as HTMLElement[]
   for (const icon of icons) {
     animateIt(icon)
   }
-}
+})
 
+// 比較アニメーションの各要素単体でも実行できるようにする。
 for (let i = 0; i < mainRightBottomFrame.getElementsByClassName('icon').length; i++) {
   const icon = mainRightBottomFrame.getElementsByClassName('icon')[i]
   icon.addEventListener('click', function (this: any) {
     animateIt(this)
   })
 }
-
-const XSpeed = document.getElementById('X_speed')! as HTMLInputElement
-const XTimes = document.getElementById('X_times')! as HTMLInputElement
-const XColor = document.getElementById('X_color')! as HTMLInputElement
-const XLine = document.getElementById('X_line')! as HTMLInputElement
-
-const XSpeedShow = document.getElementById('X_speedShow')! as HTMLSpanElement
-const XTimesShow = document.getElementById('X_timesShow')! as HTMLSpanElement
-const XColorShow = document.getElementById('X_colorShow')! as HTMLSpanElement
-const XColorParent = document.getElementById('X_colorParent')! as HTMLTableRowElement
-const XLineShow = document.getElementById('X_lineShow')! as HTMLSpanElement
 
 const toAnimateItems: HTMLElement[] = Array.from(document.getElementsByClassName('toAnimate')) as unknown as HTMLElement[]
 XSpeed.addEventListener('input', function () {
@@ -514,6 +449,10 @@ function putLogSVG (): void {
   logWindow.insertBefore(svg, logWindow.firstChild)
 }
 
+/**
+ * ログがクリックされたら、当該ログを元にベジェ曲線を再現する。
+ * @param this - 対象のログ要素。
+ */
 function logBack (this: any): void {
   truncAndImport(false)
   const dAttr = this.getElementsByTagName('path')[0].getAttribute('d').match(/-?\d+\.?\d*/g).slice(2, 6) // マイナスも取得することを忘れずに!!
@@ -530,6 +469,9 @@ function logBack (this: any): void {
   currentImporter()
 }
 
+/**
+ * ベジェ曲線の制御点の座標を現在の値に更新する。
+ */
 function currentImporter (): void {
   const pointsContainer = []
   for (let i = 0; i < 2; i++) {
@@ -550,6 +492,9 @@ for (let i = 0; i < document.getElementsByClassName('currentDemoProgressor').len
   document.getElementsByClassName('currentDemoProgressor')[i].addEventListener('animationend', finishedAnimation)
 }
 
+/**
+ * テンプレートベジェ曲線の制御点の座標を設定する関数。
+ */
 function putTemplate (): void {
   const templates: Record<string, number[][]> = {
     linear: [[0.0, 0.0], [1.0, 1.0]],
@@ -589,6 +534,10 @@ function putTemplate (): void {
 }
 putTemplate()
 
+/**
+ * 指定したベジェ曲線の速度でページトップまでスクロールする関数。
+ * @param d - ベジェ曲線の制御点の座標。
+ */
 function scrollUp (d: number[]): void {
   const positions = [d[0] / SVG_SIZE_MAX, 1 - d[1] / SVG_SIZE_MAX, d[2] / SVG_SIZE_MAX, 1 - d[3] / SVG_SIZE_MAX]
   const bezierPoints = calcBezier(positions)
@@ -605,6 +554,14 @@ function scrollUp (d: number[]): void {
   }
   waitAndRun()
 }
+
+/**
+ * ベジェ曲線を計算する関数。
+ * @param d - ベジェ曲線の制御点の座標。
+ * @param step - ベジェ曲線の分割数。
+ * @param percent - `true`の場合は、パーセント表記にする。
+ * @returns ベジェ曲線の計算結果。
+ */
 function calcBezier (d: number[], step = 100, percent = true): Record<string, number[]> {
   const answer: Record<string, number[]> = {
     x: [],

@@ -2,12 +2,6 @@
 
 import { NAMESPACE_OF_SVG } from './const.js'
 
-export function getElms (...ids: string[]): Record<string, HTMLElement> {
-  const obj: Record<string, HTMLElement> = {}
-  ids.forEach((id) => { obj[id] = document.getElementById(id)! })
-  return obj
-}
-
 export function mkElms (...tagNames: string[]): HTMLElement[] {
   return tagNames.map((tagName) => document.createElement(tagName))
 }
