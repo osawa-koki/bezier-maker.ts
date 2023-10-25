@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="UTF-8">
+	<title>bezier-maker (ベジェ曲線作成ツール)</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>ベジェ曲線作成するツール</title>
+	<link rel="stylesheet" href="style.css">
+</head>
+<body>
+	<div id="bezier">
+		<div id="mainWindow">
+			<div id="mainLeftWindow">
+				<div id="bezierFormulaBox">cubic-bezier(x1, y1, x2, y2)</div>
+				<svg id="mainSVG" width="300" height="300" version="1.1" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+					<g id="groupOfLines"></g>
+					<g id="groupOfBezier"></g>
+					<g id="groupOfExplanator"></g>
+					<g id="groupOfProgressor">
+						<path id="progressorRed" d="m -5 300, -10 -10 h-10 v20 h10 z"></path>
+						<path id="progressorBlue" d="m 0 305, -10 10 v10 h20 v-10 z"></path>
+						<text id="progressorRedCounter" x="-50" y="-15">0%</text>
+						<text id="progressorRedText" x="0" y="-15">(進捗度)</text>
+						<line id="progressorRedLine" x1="0" y1="300" x2="0" y2="300"></line>
+						<line id="progressorBlueLine" x1="0" y1="300" x2="0" y2="300"></line>
+					</g>
+					<g id="groupOfhandler"></g>
+					<circle id="runningCircle" r="10"></circle>
+				</svg>
+				<div class="buttonBox">
+					<div id="mainLeftButton" class="button">実行!!</div>
+				</div>
+				<table class="settingTable">
+					<tbody>
+						<tr>
+							<td>グリッド幅</td>
+							<td><input type="range" min="1" max="30" value="20" step="1" id="gridWidth"></td>
+							<td id="gridWidthShow"></td>
+						</tr>
+						<tr>
+							<td>グリッド濃度</td>
+							<td><input type="range" min="1" max="10" value="3" step="1" id="gridDense"></td>
+							<td id="gridDenseShow"></td>
+						</tr>
+						<tr>
+							<td>移動時間</td>
+							<td><input type="range" min="0.3" max="3" value="1" step="0.1" id="speed"></td>
+							<td>1.0秒</td>
+						</tr>
+						<tr>
+							<td>移動精度</td>
+							<td><input type="range" min="1" max="10" value="7" step="1" id="interval"></td>
+							<td>中</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<div id="mainRightWindow">
+				<div id="mainRightTopFrame">
+					<svg id="currentdemoSVG" class="icon" width="80" height="80" viewBox="-100 -100 500 500" xmlns="http://www.w3.org/2000/svg">
+						<path id="currentdemoPath"></path>
+						<circle r="40" cx="0" cy="300"></circle>
+						<circle r="40" cx="300" cy="0"></circle>
+					</svg>
+					<div id="currentDemoProgressor">
+						<div id="currentDemoProgressorA" class="toAnimate"></div>
+						<div id="currentDemoProgressorB" class="toAnimate linearAnimation"></div>
+					</div>
+				</div>
+				<div id="mainRightBottomFrame">
+					<div class="mainRightBottomOneLine">
+						<svg class="arrowBox" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+							<path class="arrow" d="m 85,50 -60,35 0,-70 z"></path>
+						</svg>
+						<svg class="icon" viewBox="-100 -100 500 500" xmlns="http://www.w3.org/2000/svg">
+							<path class="bezier" d="m0 300 C50 200, 250 100, 300 0"></path>
+							<circle r="40" cx="0" cy="300"></circle>
+							<circle r="40" cx="300" cy="0"></circle>
+						</svg>
+						<div class="progressorDiv">
+							<div class="toAnimate"></div>
+							<div class="toAnimate linearAnimation"></div>
+						</div>
+					</div>
+					<div class="mainRightBottomOneLine">
+						<svg class="arrowBox" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+							<path class="arrow" d="m 85,50 -60,35 0,-70 z"></path>
+						</svg>
+						<svg class="icon" viewBox="-100 -100 500 500" xmlns="http://www.w3.org/2000/svg">
+							<path class="bezier" d="m0 300 C50 200, 250 100, 300 0"></path>
+							<circle r="40" cx="0" cy="300"></circle>
+							<circle r="40" cx="300" cy="0"></circle>
+						</svg>
+						<div class="progressorDiv">
+							<div class="toAnimate"></div>
+							<div class="toAnimate linearAnimation"></div>
+						</div>
+					</div>
+					<div class="mainRightBottomOneLine">
+						<svg class="arrowBox" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+							<path class="arrow" d="m 85,50 -60,35 0,-70 z"></path>
+						</svg>
+						<svg class="icon" viewBox="-100 -100 500 500" xmlns="http://www.w3.org/2000/svg">
+							<path class="bezier" d="m0 300 C50 200, 250 100, 300 0"></path>
+							<circle r="40" cx="0" cy="300"></circle>
+							<circle r="40" cx="300" cy="0"></circle>
+						</svg>
+						<div class="progressorDiv">
+							<div class="toAnimate"></div>
+							<div class="toAnimate linearAnimation"></div>
+						</div>
+					</div>
+				</div>
+				<div class="buttonBox">
+					<div id="mainRightButton" class="button">一括実行</div>
+				</div>
+				<table class="settingTable">
+					<tbody>
+						<tr>
+							<td>実行時間</td>
+							<td><input type="range" min="0.3" max="3" value="1" step="0.1" id="X_speed"></td>
+							<td>1.0秒</td>
+						</tr>
+						<tr>
+							<td>実行回数</td>
+							<td><input type="range" min="1" max="3" value="1" step="1" id="X_times"></td>
+							<td>1回</td>
+						</tr>
+						<tr>
+							<td>背景色</td>
+							<td><input type="range" min="0" max="360" value="1" step="1" id="X_color"></td>
+							<td style="background-color: red;"></td>
+						</tr>
+						<tr>
+							<td>リニア線</td>
+							<td><input type="range" min="0" max="1" value="1" step="1" id="X_line"></td>
+							<td>あり</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div id="subWindow">
+			<div id="templateWindow"></div>
+			<div id="logWindow"></div>
+		</div>
+	</div>
+	<script src="./functions.js" ></script>
+	<script src="./script.js" ></script>
+</body>
+</html>
