@@ -1,11 +1,13 @@
 @charset "utf8";
 
 $sizeBorder: 1200;
+
 @mixin valid {
   @media screen and (min-width: (#{$sizeBorder+1}px)) {
     @content;
   }
 }
+
 @mixin invalid {
   @media screen and (max-width: (#{$sizeBorder}px)) {
     @content;
@@ -28,9 +30,11 @@ $sizeBorder: 1200;
       z-index: 999;
     }
   }
+
   #mainWindow {
     display: flex;
     justify-content: center;
+
     #mainLeftWindow {
       #bezierFormulaBox {
         width: 400px;
@@ -41,6 +45,7 @@ $sizeBorder: 1200;
         font-family: "consolas";
         text-align: center;
       }
+
       #mainSVG {
         display: block;
         position: relative;
@@ -49,12 +54,14 @@ $sizeBorder: 1200;
         overflow: visible;
         box-sizing: border-box;
         z-index: 1;
+
         #groupOfLines {
           line {
             background-color: rgba(black, 0.3);
             stroke-width: 1;
           }
         }
+
         #groupOfhandler {
           circle {
             fill: yellow;
@@ -62,101 +69,128 @@ $sizeBorder: 1200;
             stroke-width: 1;
             cursor: pointer;
           }
+
           polyline {
             stroke: black;
             stroke-width: 3;
           }
         }
+
         #groupOfExplanator {
           polyline {
             fill: none;
             stroke-width: 1;
+
             &:nth-of-type(1) {
               stroke: orange;
             }
+
             &:nth-of-type(2) {
               stroke: lime;
             }
+
             &:nth-of-type(3) {
               stroke: purple;
               stroke-width: 2;
             }
           }
         }
+
         #groupOfBezier {
           fill: none;
           stroke: aqua;
           stroke-width: 3;
         }
+
         #groupOfProgressor {
           #progressorRed {
             fill: red;
             stroke: none;
           }
+
           #progressorBlue {
             fill: blue;
             stroke: none;
           }
+
           #progressorRedCounter {
             fill: red;
             stroke: none;
             font-size: 12px;
             font-weight: bold;
           }
+
           #progressorRedText {
             fill: red;
             stroke: none;
             font-size: 12px;
             font-weight: bold;
           }
+
           #progressorRedLine {
             fill: none;
             stroke: red;
             stroke-width: 1;
           }
+
           #progressorBlueLine {
             fill: none;
             stroke: blue;
             stroke-width: 1;
           }
         }
+
         #runningCircle {
           fill: transparent;
           stroke: black;
           stroke-width: 0;
         }
+
         #runningCircle.ok {
           stroke-width: 1 !important;
           animation: animationRunning 1.5s linear 0s infinite normal none running;
         }
+
         @keyframes animationRunning {
-          from, 25% {
+
+          from,
+          25% {
             fill: red;
           }
-          25%, 50% {
+
+          25%,
+          50% {
             fill: blue;
           }
-          50%, 75% {
+
+          50%,
+          75% {
             fill: lime;
           }
-          75%, to {
+
+          75%,
+          to {
             fill: aqua;
           }
         }
       }
+
       #mainLeftButton {
         background-color: #FFA500;
       }
     }
+
     #mainRightWindow {
       svg {
         box-sizing: border-box;
       }
+
       #mainRightTopFrame {
         height: 100px;
         margin: 0 25px;
         display: flex;
         align-items: center;
+
         #currentDemoProgressor {
           width: 300px;
           height: 50px;
@@ -164,6 +198,7 @@ $sizeBorder: 1200;
           margin: 10px 25px;
           position: relative;
         }
+
         #currentdemoSVG {
           display: block;
           position: relative;
@@ -172,16 +207,19 @@ $sizeBorder: 1200;
           box-shadow: 2px 2px rgba(black, 0.3);
           cursor: pointer;
           background-color: yellow;
+
           &:hover {
             top: 2px;
             left: 2px;
             box-shadow: none;
           }
+
           circle {
             fill: red;
             stroke: black;
             stroke-width: 3;
           }
+
           path {
             fill: transparent;
             stroke: blue;
@@ -189,15 +227,18 @@ $sizeBorder: 1200;
           }
         }
       }
+
       #mainRightBottomFrame {
         display: flex;
         justify-content: space-around;
         flex-direction: column;
         height: 300px;
         margin: 0 25px 30px 25px;
+
         .mainRightBottomOneLine {
           display: flex;
           align-items: center;
+
           svg.arrowBox {
             position: relative;
             display: block;
@@ -208,6 +249,7 @@ $sizeBorder: 1200;
             box-shadow: 2px 2px rgba(black, 0.3);
             margin-right: 25px;
             cursor: pointer;
+
             &:hover {
               top: 2px;
               left: 2px;
@@ -215,10 +257,12 @@ $sizeBorder: 1200;
               fill: white;
               background-color: red;
             }
+
             path {
               stroke-linejoin: round;
             }
           }
+
           svg.icon {
             width: 80px;
             height: 80px;
@@ -229,22 +273,26 @@ $sizeBorder: 1200;
             box-shadow: 2px 2px rgba(black, 30%);
             background-color: #FF00FF;
             cursor: pointer;
+
             &:hover {
               top: 2px;
               left: 2px;
               box-shadow: none;
             }
+
             path.bezier {
               fill: none;
               stroke: white;
               stroke-width: 35;
             }
+
             circle {
               fill: yellow;
               stroke: black;
               stroke-width: 5;
             }
           }
+
           .progressorDiv {
             width: 300px;
             height: 50px;
@@ -254,7 +302,9 @@ $sizeBorder: 1200;
           }
         }
       }
-      .toAnimate, .linearAnimation {
+
+      .toAnimate,
+      .linearAnimation {
         position: absolute;
         top: 0px;
         left: 0px;
@@ -268,39 +318,52 @@ $sizeBorder: 1200;
         animation-fill-mode: none;
         animation-play-state: running;
       }
+
       .toAnimate {
         border-right: 1px solid black;
       }
+
       .linearAnimation {
         border-right: 5px solid black;
         background-color: transparent;
         z-index: 1;
       }
+
       .linearAnimation {
         background-color: transparent !important;
       }
+
       .onAnimation {
         animation-name: onAnimation;
       }
+
       @keyframes onAnimation {
         from {
           right: 100%;
         }
-        75%, to {
+
+        75%,
+        to {
           right: 0;
         }
       }
+
       #mainRightButton {
         background-color: #00BFFF;
       }
     }
+
     table {
-      th, td {
+
+      th,
+      td {
         border: 1px black solid;
       }
     }
+
     .buttonBox {
       height: 50px;
+
       .button {
         display: flex;
         position: relative;
@@ -314,6 +377,7 @@ $sizeBorder: 1200;
         box-shadow: 1px 3px rgba(black, 0.5);
         cursor: pointer;
         border: 1px black solid;
+
         &:hover {
           top: 1px;
           left: 3px;
@@ -321,9 +385,11 @@ $sizeBorder: 1200;
         }
       }
     }
+
     .settingTable {
       border-collapse: collapse;
       margin: 50px auto 25px auto;
+
       td {
         padding: 3px 10px;
       }
@@ -345,12 +411,14 @@ $sizeBorder: 1200;
       align-items: flex-start;
       align-content: center;
       flex-wrap: nowrap;
+
       .explanationBox {
         position: relative;
         margin: auto 10px;
         width: 80px;
         height: 80px;
         cursor: pointer;
+
         svg {
           width: 80px;
           height: 80px;
@@ -358,28 +426,31 @@ $sizeBorder: 1200;
           position: absolute;
           box-sizing: border-box;
           background-color: #FFFFCC;
+
           path {
             fill: transparent;
             stroke: black;
             stroke-width: 7;
           }
         }
+
         .text {
-          position : absolute;
-          display : inline-block;
-          left : 50%;
-          bottom : 10%;
-          transform : translateX(-50%);
-          text-align : center;
-          font-size : 12px;
-          border : 1px black solid;
-          border-radius : 20px;
-          background-color : rgba(white, 0.7);
-          padding : 1px 8px;
-          white-space : nowrap;
+          position: absolute;
+          display: inline-block;
+          left: 50%;
+          bottom: 10%;
+          transform: translateX(-50%);
+          text-align: center;
+          font-size: 12px;
+          border: 1px black solid;
+          border-radius: 20px;
+          background-color: rgba(white, 0.7);
+          padding: 1px 8px;
+          white-space: nowrap;
         }
       }
     }
+
     #logWindow {
       margin: 30px auto;
       padding: 10px;
@@ -393,32 +464,38 @@ $sizeBorder: 1200;
       align-items: flex-start;
       align-content: flex-start;
       flex-wrap: wrap;
+
       svg {
         width: 50px;
         height: 50px;
-        background-color : black;
-        display : block;
-        margin : 10px;
-        border : 1px white solid;
-        box-sizing : border-box;
-        cursor : pointer;
+        background-color: black;
+        display: block;
+        margin: 10px;
+        border: 1px white solid;
+        box-sizing: border-box;
+        cursor: pointer;
       }
+
       svg:hover {
-        background-color : white;
-        border : 1px black solid;
+        background-color: white;
+        border: 1px black solid;
+
         path {
           stroke: black;
         }
+
         circle {
           fill: white;
           stroke: black;
         }
       }
+
       path {
         fill: transparent;
         stroke: white;
         stroke-width: 30;
       }
+
       svg circle {
         fill: black;
         stroke: white;
@@ -426,26 +503,23 @@ $sizeBorder: 1200;
       }
 
     }
-    #logWindow::-webkit-scrollbar, #templateWindow::-webkit-scrollbar { // webkit
+
+    #logWindow::-webkit-scrollbar,
+    #templateWindow::-webkit-scrollbar {
+      // webkit
       display: none;
     }
-    #logWindow, #templateWindow { // firefox
+
+    #logWindow,
+    #templateWindow {
+      // firefox
       scrollbar-width: none;
     }
   }
 }
 
-
 @media screen and (max-width: 1199px) {
   #v3-width_judge {
     display: none;
   }
-}
-
-
-#v3-add-del {
-  display: flex;
-  justify-content: center;
-  margin: 30px auto;
-  overflow: hidden;
 }
