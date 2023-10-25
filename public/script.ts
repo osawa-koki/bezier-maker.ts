@@ -1,12 +1,15 @@
-"use strict";
+// @ts-nocheck
+
+import { getElms, mkElms, mkSVGElm, mkSVGElms, removeChildren, round100 } from "./functions.js";
+import { SPACE } from "./const.js";
 
 // define const values.
 const [SVG_SIZE_MIN, SVG_SIZE_MAX] = [0, 300];
-const [bezierFormulaBox,currentdemoSVG, currentdemoPath] = getElm(["bezierFormulaBox", "currentdemoSVG", "currentdemoPath"]);
-const [leftButton, rightButton, gridWidth, gridDense, speed, interval] = getElm(["mainLeftButton", "mainRightButton", "gridWidth", "gridDense", "speed", "interval"]);
-const [groupOfLines, groupOfBezier, groupOfExplanator, groupOfhandler] = getElm(["groupOfLines", "groupOfBezier", "groupOfExplanator", "groupOfhandler"]);
-const [runningCircle, progressorRed, progressorRedCounter, progressorBlue, progressorRedLine, progressorBlueLine] = getElm(["runningCircle", "progressorRed", "progressorRedCounter", "progressorBlue", "progressorRedLine", "progressorBlueLine"]);
-const [mainWindow, templateWindow, logWindow, mainRightBottomFrame] = getElm(["mainWindow", "templateWindow", "logWindow", "mainRightBottomFrame"]);
+const { bezierFormulaBox,currentdemoSVG, currentdemoPath } = getElms("bezierFormulaBox", "currentdemoSVG", "currentdemoPath");
+const { mainLeftButton: leftButton, mainRightButton: rightButton, gridWidth, gridDense, speed, interval } = getElms("mainLeftButton", "mainRightButton", "gridWidth", "gridDense", "speed", "interval");
+const { groupOfLines, groupOfBezier, groupOfExplanator, groupOfhandler } = getElms("groupOfLines", "groupOfBezier", "groupOfExplanator", "groupOfhandler");
+const { runningCircle, progressorRed, progressorRedCounter, progressorBlue, progressorRedLine, progressorBlueLine } = getElms("runningCircle", "progressorRed", "progressorRedCounter", "progressorBlue", "progressorRedLine", "progressorBlueLine");
+const { mainWindow, templateWindow, logWindow, mainRightBottomFrame } = getElms("mainWindow", "templateWindow", "logWindow", "mainRightBottomFrame");
 const bezier = document.createElementNS("http://www.w3.org/2000/svg", "path");
 
 const handlers = {
@@ -35,23 +38,23 @@ interval.addEventListener("input", () => interval.parentNode.nextElementSibling.
 
 function setDefault() {
 	const cxcy = [50, 100, 250, 200]; // default bezier value.
-	doNtimes(2, i => {
-		const [circle] = mkElmSVG(["circle"]);
-		const circleSettings = {
-			"r" : 15,
-			"cx" : cxcy[i * 2],
-			"cy" : cxcy[i * 2 + 1],
-		};
-		for (const circleSetting in circleSettings) {
-			circle.setAttribute(circleSetting, circleSettings[circleSetting]);
-		}
-		circle.addEventListener("mousedown", mousedown, false);
-		const [polyline] = mkElmSVG(["polyline"]);
-		groupOfhandler.appendChild(polyline);
-		groupOfhandler.appendChild(circle);
-		handlers.circles.push(circle);
-		handlers.polylines.push(polyline);
-	});
+  for (let i = 0; i < 2; i++) {
+    const circle = mkSVGElm("circle");
+    const circleSettings = {
+      "r" : 15,
+      "cx" : cxcy[i * 2],
+      "cy" : cxcy[i * 2 + 1],
+    };
+    for (const circleSetting in circleSettings) {
+      circle.setAttribute(circleSetting, circleSettings[circleSetting]);
+    }
+    circle.addEventListener("mousedown", mousedown, false);
+    const polyline = mkSVGElm("polyline");
+    groupOfhandler.appendChild(polyline);
+    groupOfhandler.appendChild(circle);
+    handlers.circles.push(circle);
+    handlers.polylines.push(polyline);
+  }
 	manipuratorSync();
 }
 function setDense() {
@@ -105,21 +108,30 @@ function mousemove_mouseup_common() {
 	currentImporter();
 }
 function manipuratorSync() {
-	doNtimes(2, i => handlers.polylines[i].setAttribute("points", `${(i === 0) ? SVG_SIZE_MIN : SVG_SIZE_MAX} ${(i === 1) ? SVG_SIZE_MIN : SVG_SIZE_MAX}, ${handlers.circles[i].getAttribute("cx")} ${handlers.circles[i].getAttribute("cy")}`));
+  for (let i = 0; i < 2; i++) {
+    const polyline = handlers.polylines[i];
+    const polylineSettings = {
+      "points" : `${(i === 0) ? SVG_SIZE_MIN : SVG_SIZE_MAX} ${(i === 1) ? SVG_SIZE_MIN : SVG_SIZE_MAX}, ${handlers.circles[i].getAttribute("cx")} ${handlers.circles[i].getAttribute("cy")}`,
+    };
+    for (const polylineSetting in polylineSettings) {
+      polyline.setAttribute(polylineSetting, polylineSettings[polylineSetting]);
+    }
+  }
 }
 function putLines() {
 	removeChildren(groupOfLines);
 	const range = gridWidth.value;
 	document.getElementById("gridWidthShow").textContent = `${range}等分`;
 	for (let i = SVG_SIZE_MIN; i < SVG_SIZE_MAX; i = i + SVG_SIZE_MAX / range) {
-		const [h, v] = mkElmSVG(["line", "line"]);
+		const [h, v] = mkSVGElms("line", "line");
 		h.setAttribute("x1", SVG_SIZE_MIN);
 		h.setAttribute("x2", SVG_SIZE_MAX);
 		["y1", "y2"].map(element => h.setAttribute(element, i));
 		v.setAttribute("y1", SVG_SIZE_MIN);
 		v.setAttribute("y2", SVG_SIZE_MAX);
 		["x1", "x2"].map(element => v.setAttribute(element, i))
-		append([h, v], groupOfLines);
+    groupOfLines.appendChild(h);
+    groupOfLines.appendChild(v);
 		setDense();
 	}
 }
@@ -128,13 +140,13 @@ function putPath() {
 }
 function bezierSync() {
 	const pointsContainer = [];
-	doNtimes(2, i => {
-		const points = [];
-		const circle = handlers.circles[i];
-		points.push(circle.getAttribute("cx"));
-		points.push(circle.getAttribute("cy"));
-		pointsContainer.push(points.join(SPACE));
-	});
+  for (let i = 0; i < 2; i++) {
+    const points = [];
+    const circle = handlers.circles[i];
+    points.push(circle.getAttribute("cx"));
+    points.push(circle.getAttribute("cy"));
+    pointsContainer.push(points.join(SPACE));
+  }
 	bezier.setAttribute("d", `m ${SVG_SIZE_MIN} ${SVG_SIZE_MAX} C ${pointsContainer.join(", ")}, ${SVG_SIZE_MAX} ${SVG_SIZE_MIN}`);
 	return pointsContainer;
 }
@@ -178,13 +190,13 @@ function recursiveInitiator(points, tf = true) {
 	const span = 50 + (5 - intervalValue) * 5;
 	const realSpeed = speedValue / span;
 	if (tf) {
-		const [polyline] = mkElmSVG(["polyline"]);
+		const polyline = mkSVGElm(["polyline"]);
 		polyline.setAttribute("points", points.map(j => j.join(",")).join(SPACE));
 		groupOfExplanator.appendChild(polyline);
-		doNtimes(points.length, () => {
-			const [polyline] = mkElmSVG(["polyline"]);
-			groupOfExplanator.appendChild(polyline);
-		});
+    for (let i = 0; i < points.length; i++) {
+      const polyline = mkSVGElm("polyline");
+      groupOfExplanator.appendChild(polyline);
+    }
 		runningCircle.classList.add("ok");
 		runningCircle.setAttribute("cx", SVG_SIZE_MIN);
 		runningCircle.setAttribute("cy", SVG_SIZE_MAX);
@@ -228,11 +240,11 @@ function recursiveMain(points, proportion) {
 	if (points.length === 1) return;
 	const targetLine = groupOfExplanator.getElementsByTagName("polyline")[5 - points.length];
 	const dComponents = [];
-	doNtimes(points.length - 1, i => {
-		const x = (points[i + 1][0] - points[i][0]) * proportion + points[i][0];
-		const y = (points[i + 1][1] - points[i][1]) * proportion + points[i][1];
-		dComponents.push([x, y]);
-	});
+  for (let i = 0; i < points.length - 1; i++) {
+    const x = (points[i + 1][0] - points[i][0]) * proportion + points[i][0];
+    const y = (points[i + 1][1] - points[i][1]) * proportion + points[i][1];
+    dComponents.push([x, y]);
+  }
 	targetLine.setAttribute("points", dComponents.map(j => j.join(",")).join(" "));
 	if (points.length === 2) {
 		const xx = dComponents[0][0];
@@ -251,7 +263,6 @@ function recursiveMain(points, proportion) {
 	}
 	recursiveMain(dComponents, proportion);
 }
-
 
 rightButton.addEventListener("click", doAnimation);
 
@@ -283,9 +294,11 @@ function doAnimation() {
 	});
 }
 
-looper(mainRightBottomFrame.getElementsByClassName("icon"), element => element.addEventListener("click", animateIt));
+for (let i = 0; i < mainRightBottomFrame.getElementsByClassName("icon").length; i++) {
+  mainRightBottomFrame.getElementsByClassName("icon")[i].addEventListener("click", animateIt);
+}
 
-const [X_speed, X_times, X_color, X_line] = getElm(["X_speed", "X_times", "X_color", "X_line"]);
+const { X_speed, X_times, X_color, X_line } = getElms("X_speed", "X_times", "X_color", "X_line");
 
 const toAnimateItems = Array.from(document.getElementsByClassName("toAnimate"));
 X_speed.addEventListener("input", function() {
@@ -309,35 +322,41 @@ X_line.addEventListener("change", function() {
 	this.parentNode.nextElementSibling.textContent = (parseInt(this.value) === 1) ? "あり" : "なし";
 	if (parseInt(this.value) === 1) {
 		const pausedElement = document.getElementsByClassName("animationPaused");
-		doNtimes(pausedElement.length, i => {
-			pausedElement[i].classList.add("toAnimate");
-			pausedElement[i].classList.remove("animationPaused");
-		});
+    for (let i = 0; i < pausedElement.length; i++) {
+      pausedElement[i].classList.add("toAnimate");
+      pausedElement[i].classList.remove("animationPaused");
+    }
 	} else {
 		const animationLinear = document.getElementsByClassName("linearAnimation");
-		doNtimes(animationLinear.length, i => {
-			animationLinear[i].classList.add("animationPaused");
-			animationLinear[i].classList.remove("toAnimate");
-		});
+    for (let i = 0; i < animationLinear.length; i++) {
+      animationLinear[i].classList.add("animationPaused");
+      animationLinear[i].classList.remove("toAnimate");
+    }
 	}
 });
 
 // マウスアップ時の処理(ログ生成)
 function putLogSVG() {
 	const positions = bezierSync();
-	const [svg, groupOfPaths, groupOfCircles, path] = mkElmSVG(["svg", "g", "g", "path"]);
+	const [svg, groupOfPaths, groupOfCircles, path] = mkSVGElms("svg", "g", "g", "path");
 	svg.setAttribute("viewBox", "-50 -50 400 400");
 	path.setAttribute("d", `m ${SVG_SIZE_MIN} ${SVG_SIZE_MAX} C ${positions.join(", ")}, ${SVG_SIZE_MAX} ${SVG_SIZE_MIN}`);
 	groupOfPaths.appendChild(path);
 	const xy = [[SVG_SIZE_MIN, SVG_SIZE_MAX], [SVG_SIZE_MAX, SVG_SIZE_MIN]];
-	doNtimes(2, i => {
-		const [circle] = mkElmSVG(["circle"]);
-		circle.setAttribute("r", 30);
-		circle.setAttribute("cx", xy[i][0]);
-		circle.setAttribute("cy", xy[i][1]);
-		groupOfCircles.appendChild(circle);
-	});
-	append([groupOfPaths, groupOfCircles], svg);
+  for (let i = 0; i < 2; i++) {
+    const circle = mkSVGElm("circle");
+    const circleSettings = {
+      "r" : 30,
+      "cx" : xy[i][0],
+      "cy" : xy[i][1],
+    };
+    for (const circleSetting in circleSettings) {
+      circle.setAttribute(circleSetting, circleSettings[circleSetting]);
+    }
+    groupOfCircles.appendChild(circle);
+  }
+  svg.appendChild(groupOfPaths);
+  svg.appendChild(groupOfCircles);
 	svg.addEventListener("click", logBack);
 	logWindow.insertBefore(svg, logWindow.firstChild);
 }
@@ -346,10 +365,10 @@ function logBack() {
 	truncAndImport(false);
 	const dAttr = this.getElementsByTagName("path")[0].getAttribute("d").match(/-?\d+\.?\d*/g).slice(2, 6); // マイナスも取得することを忘れずに!!
 	const d = [dAttr.slice(0, 2), dAttr.slice(2, 4)];
-	doNtimes(d.length, i => {
-		handlers.circles[0].setAttribute("cx", d[i][0]);
-		handlers.circles[1].setAttribute("cy", d[i][1]);
-	});
+  for (let i = 0; i < d.length; i++) {
+    handlers.circles[i].setAttribute("cx", d[i][0]);
+    handlers.circles[i].setAttribute("cy", d[i][1]);
+  }
 	scrollUp(dAttr);
 	manipuratorSync();
 	bezierSync();
@@ -359,19 +378,21 @@ function logBack() {
 }
 function currentImporter() {
 	const pointsContainer = [];
-	doNtimes(2, i => {
-		const points = [];
-		const circle = handlers.circles[i];
-		points.push(circle.getAttribute("cx"));
-		points.push(circle.getAttribute("cy"));
-		pointsContainer.push(points);
-	});
+  for (let i = 0; i < 2; i++) {
+    const points = [];
+    const circle = handlers.circles[i];
+    points.push(circle.getAttribute("cx"));
+    points.push(circle.getAttribute("cy"));
+    pointsContainer.push(points);
+  }
 	currentdemoPath.setAttribute("d", `m ${SVG_SIZE_MIN} ${SVG_SIZE_MAX} C ${pointsContainer.map(e => e.join(" ")).join(", ")}, ${SVG_SIZE_MAX} ${SVG_SIZE_MIN}`);
 }
 
 currentdemoSVG.addEventListener("click", animateIt);
-looper(getElm(["currentDemoProgressorA", "currentDemoProgressorB"]), element => element.addEventListener("animationend", finishedAnimation));
 
+for (let i = 0; i < document.getElementsByClassName("currentDemoProgressor").length; i++) {
+  document.getElementsByClassName("currentDemoProgressor")[i].addEventListener("animationend", finishedAnimation);
+}
 
 function putTemplate() {
 	const templates = {
@@ -386,22 +407,29 @@ function putTemplate() {
 		"オススメ５" : [[0.2, 0.2], [0.3, 0.9]],
 	};
 	for (let templateName in templates) {
-		const [explanationBox, text] = mkElm(["div", "div"]);
-		const [svg, path, circle1, circle2] = mkElmSVG(["svg", "path", "circle", "circle"]);
-		const modifiedPoints = map(points => map(point => point * SVG_SIZE_MAX, points), templates[templateName]);
+		const [explanationBox, text] = mkElms("div", "div");
+		const [svg, path, circle1, circle2] = mkSVGElms("svg", "path", "circle", "circle");
+    const modifiedPoints = templates[templateName].map(points => points.map(point => point * SVG_SIZE_MAX));
 		svg.setAttribute("viewBox", `-50 -50 400 400`);
 		path.setAttribute("d", `m${SVG_SIZE_MIN} ${SVG_SIZE_MAX} C ${modifiedPoints[0][0]} ${SVG_SIZE_MAX - modifiedPoints[0][1]}, ${modifiedPoints[1][0]} ${SVG_SIZE_MAX - modifiedPoints[1][1]}, ${SVG_SIZE_MAX} ${SVG_SIZE_MIN}`);
 		circle1.setAttribute("cx", SVG_SIZE_MIN);
 		circle1.setAttribute("cy", SVG_SIZE_MAX);
 		circle2.setAttribute("cx", SVG_SIZE_MAX);
 		circle2.setAttribute("cy", SVG_SIZE_MIN);
-		looper([circle1, circle2], circle => circle.setAttribute("r", 20));
+    for (const circle of [circle1, circle2]) {
+      circle.setAttribute("r", 20);
+    }
 		explanationBox.classList.add("explanationBox");
 		text.textContent = templateName;
 		text.classList.add("text");
 		svg.addEventListener("click", logBack);
-		append([path, circle1, circle2], svg);
-		append([svg, text], explanationBox);
+		// append([path, circle1, circle2], svg);
+    svg.appendChild(path);
+    svg.appendChild(circle1);
+    svg.appendChild(circle2);
+		// append([svg, text], explanationBox);
+    explanationBox.appendChild(svg);
+    explanationBox.appendChild(text);
 		templateWindow.appendChild(explanationBox);
 	};
 }
