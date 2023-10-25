@@ -454,6 +454,7 @@ function putLogSVG (): void {
  * @param this - 対象のログ要素。
  */
 function logBack (this: any): void {
+  removeChildren(groupOfExplanator as unknown as HTMLElement)
   truncAndImport(false)
   const dAttr = this.getElementsByTagName('path')[0].getAttribute('d').match(/-?\d+\.?\d*/g).slice(2, 6) // マイナスも取得することを忘れずに!!
   const d = [dAttr.slice(0, 2), dAttr.slice(2, 4)]
@@ -462,11 +463,11 @@ function logBack (this: any): void {
     handlers.circles[i].setAttribute('cy', d[i][1])
   }
   scrollUp(dAttr)
-  manipuratorSync()
   bezierSync()
   const ary = obtainManipulatorPositions()
   bezierFormulaBox.textContent = `cubic-bezier(${round100(ary[1][0] / SVG_SIZE_MAX)}, ${round100((1 - (ary[1][1] / SVG_SIZE_MAX)))}, ${round100(ary[2][0] / SVG_SIZE_MAX)}, ${round100(1 - (ary[2][1] / SVG_SIZE_MAX))})`
   currentImporter()
+  manipuratorSync()
 }
 
 /**
